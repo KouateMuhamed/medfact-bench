@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import verifiers.v1 as vf
+import verifiers as vf
 
 from .core import (
     INVALID_LABEL,
@@ -14,6 +14,7 @@ from .core import (
     score_to_label,
     strict_format,
 )
+from .environment import build_environment
 from .harness import MedFactHarness, MedFactHarnessConfig
 from .taskset import (
     DATASET_ID,
@@ -39,47 +40,28 @@ def load_harness(config: MedFactHarnessConfig) -> MedFactHarness:
     return MedFactHarness(config=config)
 
 
-def load_environment(config: vf.EnvConfig | None = None, **kwargs) -> vf.Environment:
-    """Construct a one-turn MedFact-Bench environment from a Verifiers config.
+def load_environment(
+    subset: str = "all",
+    split: str = "eval",
+    dataset_path: str | None = None,
+    cache_dir: str | None = None,
+    **kwargs,
+) -> vf.SingleTurnEnv:
+    """Construct the one-turn MedFact-Bench environment (classic Verifiers v0 API).
 
-    Accepts a pre-built ``EnvConfig`` positionally (the native v1 taskset/harness
-    loading path), or plain keyword arguments (the legacy ``load_environment(id,
-    **args)`` bridge used by generic environment tooling), applying kwargs as
-    overrides when both are given.
+    This is the entry point that ``verifiers.load_environment("medfact-bench")``
+    and ``vf-eval`` resolve, so it returns a v0 ``SingleTurnEnv`` exposing
+    ``evaluate``/``start_server``/``stop_server``. The native v1 taskset/harness
+    path is resolved separately by plugin id via ``MedFactTaskset`` /
+    ``MedFactHarness``; both share the same dataset loading and scoring.
     """
-    if config is None:
-        config = vf.EnvConfig(**kwargs)
-    elif kwargs:
-        config = config.model_copy(update=kwargs)
-
-    taskset_config = config.taskset
-    if not taskset_config.id:
-        taskset_config = MedFactTasksetConfig(id=ENVIRONMENT_ID)
-
-    harness_config = config.harness
-    if harness_config.id == "default":
-        harness_config = MedFactHarnessConfig(
-            id=ENVIRONMENT_ID,
-            runtime=harness_config.runtime,
-            env=harness_config.env,
-            forward_env=harness_config.forward_env,
-            disabled_tools=harness_config.disabled_tools,
-        )
-
-    normalized = config.model_copy(
-        update={
-            "taskset": taskset_config,
-            "harness": harness_config,
-            "max_turns": 1,
-        }
+    return build_environment(
+        subset=subset,
+        split=split,
+        dataset_path=dataset_path,
+        cache_dir=cache_dir,
+        **kwargs,
     )
-    environment = vf.Environment(config=normalized)
-    # verifiers' legacy `env_utils.load_environment` bridge unconditionally reads and
-    # writes `env_id`/`env_args` on whatever this function returns; the v1 `Environment`
-    # class doesn't define either, so pre-set them to satisfy that bridge.
-    environment.env_id = ENVIRONMENT_ID
-    environment.env_args = kwargs
-    return environment
 
 
 __all__ = [
@@ -98,6 +80,7 @@ __all__ = [
     "MedFactTaskset",
     "MedFactTasksetConfig",
     "accuracy",
+    "build_environment",
     "load_environment",
     "load_harness",
     "load_taskset",

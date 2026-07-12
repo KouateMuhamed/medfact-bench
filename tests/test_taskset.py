@@ -7,7 +7,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-import verifiers.v1 as vf
+import verifiers as vf
 from datasets import Dataset
 from pydantic import ValidationError
 
@@ -141,37 +141,64 @@ def test_harness_preserves_separate_system_and_user_messages(monkeypatch: pytest
     assert user_prompt == "Exact user prompt"
 
 
-def test_environment_loader_uses_typed_taskset_and_one_turn() -> None:
-    config = vf.EnvConfig.model_validate(
-        {
-            "taskset": {"id": "medfact-bench", "subset": "scifact", "split": "eval"},
-            "harness": {"id": "medfact-bench"},
-            "max_turns": 9,
-        }
-    )
+def test_environment_loader_returns_one_turn_singleturn_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`verifiers.load_environment("medfact-bench")` / `vf-eval` drive the classic v0 API,
+    so the loader must return a one-turn `SingleTurnEnv` built over the eval dataset."""
+    monkeypatch.setattr(taskset_module, "_load_source_dataset", lambda *_: _dataset())
 
-    environment = load_environment(config)
+    environment = load_environment(subset="scifact")
 
-    assert isinstance(environment.taskset, MedFactTaskset)
-    assert isinstance(environment.harness, MedFactHarness)
-    assert environment.config.max_turns == 1
-    assert environment.taskset.config.subset == "scifact"
-
-
-def test_environment_loader_accepts_legacy_bridge_kwargs() -> None:
-    """`verifiers.load_environment(env_id, **env_args)` calls this with plain kwargs
-    (no `EnvConfig`), and reads/writes `env_id`/`env_args` on the result — both must work
-    for the environment to load through the Hub's generic install/load smoke test."""
-    environment = load_environment()
-
+    assert isinstance(environment, vf.SingleTurnEnv)
+    assert environment.max_turns == 1
     assert environment.env_id == "medfact-bench"
-    assert environment.env_args == {}
-    assert environment.config.max_turns == 1
+    assert environment.env_args["subset"] == "scifact"
+
+    eval_dataset = environment.get_eval_dataset()
+    assert eval_dataset[0]["prompt"] == [
+        {"role": "system", "content": "Canonical system prompt"},
+        {"role": "user", "content": "Article:\nEvidence\n\nClaim:\nClaim"},
+    ]
+    assert eval_dataset[0]["answer"] == "SUPPORT"
+
+
+def test_environment_loader_tolerates_generic_kwargs(monkeypatch: pytest.MonkeyPatch) -> None:
+    """`vf-eval` may forward extra args (e.g. `max_turns`) via the generic bridge; they are
+    recorded but must not break the single-turn protocol."""
+    monkeypatch.setattr(taskset_module, "_load_source_dataset", lambda *_: _dataset())
 
     environment = load_environment(max_turns=9)
 
-    assert environment.env_args == {"max_turns": 9}
-    assert environment.config.max_turns == 1
+    assert isinstance(environment, vf.SingleTurnEnv)
+    assert environment.max_turns == 1
+    assert environment.env_args["max_turns"] == 9
+
+
+def test_environment_rewards_score_three_way_classification(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The v0 rubric must reward correct labels and report the parse/format diagnostics,
+    matching the v1 taskset's reward/metrics."""
+    monkeypatch.setattr(taskset_module, "_load_source_dataset", lambda *_: _dataset())
+    environment = load_environment(subset="scifact")
+
+    async def score(completion: list[dict[str, str]]) -> dict[str, float]:
+        state = {"completion": completion, "answer": "SUPPORT", "prompt": [], "info": {}, "task": "medfact-bench"}
+        await environment.rubric.score_rollout(state)
+        return {"reward": state["reward"], **state["metrics"]}
+
+    correct = asyncio.run(score([{"role": "assistant", "content": "<think>r</think>\n<score>2</score>"}]))
+    assert correct["reward"] == 1.0
+    assert correct["accuracy"] == 1.0
+    assert correct["parseable_score"] == 1.0
+    assert correct["strict_format"] == 1.0
+
+    wrong = asyncio.run(score([{"role": "assistant", "content": "text <score>-2</score> tail"}]))
+    assert wrong["reward"] == 0.0
+    assert wrong["accuracy"] == 0.0
+    assert wrong["parseable_score"] == 1.0
+    assert wrong["strict_format"] == 0.0
+
+    unparseable = asyncio.run(score([{"role": "assistant", "content": "no score"}]))
+    assert unparseable["accuracy"] == 0.0
+    assert unparseable["parseable_score"] == 0.0
 
 
 @pytest.mark.integration
