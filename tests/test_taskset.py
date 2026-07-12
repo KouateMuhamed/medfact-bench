@@ -201,6 +201,39 @@ def test_environment_rewards_score_three_way_classification(monkeypatch: pytest.
     assert unparseable["parseable_score"] == 0.0
 
 
+def test_environment_records_prediction_columns(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Scoring records the model's mapped verdict (``prediction``) and raw ``pred_score``
+    next to the ground-truth ``answer``, and the env auto-persists those columns."""
+    from medfact_bench.environment import PREDICTION_COLUMNS
+
+    monkeypatch.setattr(taskset_module, "_load_source_dataset", lambda *_: _dataset())
+    environment = load_environment(subset="scifact")
+    assert PREDICTION_COLUMNS == ("prediction", "pred_score")
+
+    async def score(content: str) -> dict:
+        state = {
+            "completion": [{"role": "assistant", "content": content}],
+            "answer": "SUPPORT",
+            "prompt": [],
+            "info": {},
+        }
+        await environment.rubric.score_rollout(state)
+        return state
+
+    correct = asyncio.run(score("<think>r</think>\n<score>2</score>"))
+    assert correct["answer"] == "SUPPORT"  # ground truth unchanged
+    assert correct["prediction"] == "SUPPORT"
+    assert correct["pred_score"] == 2
+
+    wrong = asyncio.run(score("blah <score>-2</score>"))
+    assert wrong["prediction"] == "CONTRADICT"
+    assert wrong["pred_score"] == -2
+
+    invalid = asyncio.run(score("no score here"))
+    assert invalid["prediction"] == "INVALID"
+    assert invalid["pred_score"] is None
+
+
 @pytest.mark.integration
 @pytest.mark.skipif(
     os.environ.get("MEDFACT_BENCH_RUN_DATASET_INTEGRATION") != "1",

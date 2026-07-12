@@ -16,16 +16,60 @@ import verifiers as vf
 from datasets import Dataset
 
 from . import taskset as _taskset
-from .core import MedFactScoreParser
+from .core import MedFactScoreParser, score_to_label
 from .core import accuracy as _score_accuracy
 from .core import parseable_score as _score_parseable
 from .core import strict_format as _score_strict_format
 
 ENVIRONMENT_ID = "medfact-bench"
 
+# Extra per-rollout columns recorded next to the ground-truth ``answer``: the model's
+# mapped verdict (``prediction``) and the raw parsed integer (``pred_score``).
+PREDICTION_COLUMNS = ("prediction", "pred_score")
+
 # One shared parser; the reward wrappers ignore any parser injected by the rubric
 # and always use the paper-format MedFact parser.
 _PARSER = MedFactScoreParser()
+
+
+def _record_prediction(state: dict) -> None:
+    """Store the model's mapped prediction and raw score on the rollout state."""
+    score = _PARSER.parse_completion(state.get("completion"))
+    state["pred_score"] = score  # int in [-2, 2], or None when unparseable
+    state["prediction"] = score_to_label(score)  # SUPPORT / NEI / CONTRADICT / INVALID
+
+
+class MedFactRubric(vf.Rubric):
+    """Scores accuracy/diagnostics and also records the model's mapped prediction.
+
+    ``answer`` (the ground-truth label) is already saved; this adds the model's
+    parsed verdict so results carry GT vs prediction side by side.
+    """
+
+    async def score_rollout(self, state: dict) -> None:
+        await super().score_rollout(state)
+        _record_prediction(state)
+
+    async def score_group(self, states: list[dict]) -> None:
+        await super().score_group(states)
+        for state in states:
+            _record_prediction(state)
+
+
+class MedFactSingleTurnEnv(vf.SingleTurnEnv):
+    """SingleTurnEnv that always persists the prediction columns.
+
+    ``evaluate`` runs client-side and forwards ``state_columns`` to the env server,
+    so appending them here makes ``prediction``/``pred_score`` appear in results
+    without the caller needing ``--state-columns``.
+    """
+
+    async def evaluate(self, *args, state_columns: list[str] | None = None, **kwargs):
+        cols = list(state_columns or [])
+        for col in PREDICTION_COLUMNS:
+            if col not in cols:
+                cols.append(col)
+        return await super().evaluate(*args, state_columns=cols, **kwargs)
 
 
 def _accuracy(completion, answer, **kwargs) -> float:
@@ -89,12 +133,12 @@ def build_environment(
     """
     eval_dataset = _build_eval_dataset(subset, split, dataset_path, cache_dir)
     parser = vf.Parser()
-    rubric = vf.Rubric(
+    rubric = MedFactRubric(
         funcs=[_accuracy, _parseable_score, _strict_format],
         weights=[1.0, 0.0, 0.0],
         parser=parser,
     )
-    return vf.SingleTurnEnv(
+    return MedFactSingleTurnEnv(
         eval_dataset=eval_dataset,
         parser=parser,
         rubric=rubric,

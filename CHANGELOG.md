@@ -7,6 +7,12 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Added
+
+- Per-rollout `prediction` (mapped SUPPORT/NEI/CONTRADICT/INVALID verdict) and
+  `pred_score` (raw parsed integer) columns recorded next to the ground-truth
+  `answer`, auto-persisted by the environment without a `--state-columns` flag.
+
 ## [0.1.0] - 2026-07-12
 
 ### Added
