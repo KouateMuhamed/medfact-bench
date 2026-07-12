@@ -1,6 +1,6 @@
 [project]
 name = "medfact-bench"
-version = "0.1.0"
+version = "0.1.1"
 description = "Paper-faithful zero-shot evaluation and reporting for MedFact-Bench"
 authors = [
     { name = "Kouate Muhamed", email = "muhamed.kouate@icloud.com" },

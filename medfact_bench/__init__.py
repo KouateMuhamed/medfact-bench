@@ -2,8 +2,7 @@
 
 from __future__ import annotations
 
-import verifiers as vf
-
+from .constants import DATASET_ID, DATASET_REVISION, EXPECTED_DATASET_COUNTS
 from .core import (
     INVALID_LABEL,
     LABELS,
@@ -14,29 +13,21 @@ from .core import (
     score_to_label,
     strict_format,
 )
-from .environment import build_environment
-from .harness import MedFactHarness, MedFactHarnessConfig
-from .taskset import (
-    DATASET_ID,
-    DATASET_REVISION,
-    EXPECTED_DATASET_COUNTS,
-    MedFactSubset,
-    MedFactTask,
-    MedFactTaskData,
-    MedFactTaskset,
-    MedFactTasksetConfig,
-)
 
 ENVIRONMENT_ID = "medfact-bench"
 
 
-def load_taskset(config: MedFactTasksetConfig) -> MedFactTaskset:
+def load_taskset(config):
     """Construct the typed MedFact-Bench taskset."""
+    from .taskset import MedFactTaskset
+
     return MedFactTaskset(config=config)
 
 
-def load_harness(config: MedFactHarnessConfig) -> MedFactHarness:
+def load_harness(config):
     """Construct the prompt-preserving endpoint-backed harness."""
+    from .harness import MedFactHarness
+
     return MedFactHarness(config=config)
 
 
@@ -46,7 +37,7 @@ def load_environment(
     dataset_path: str | None = None,
     cache_dir: str | None = None,
     **kwargs,
-) -> vf.SingleTurnEnv:
+):
     """Construct the one-turn MedFact-Bench environment (classic Verifiers v0 API).
 
     This is the entry point that ``verifiers.load_environment("medfact-bench")``
@@ -55,6 +46,8 @@ def load_environment(
     path is resolved separately by plugin id via ``MedFactTaskset`` /
     ``MedFactHarness``; both share the same dataset loading and scoring.
     """
+    from .environment import build_environment
+
     return build_environment(
         subset=subset,
         split=split,
@@ -62,6 +55,35 @@ def load_environment(
         cache_dir=cache_dir,
         **kwargs,
     )
+
+
+def __getattr__(name: str):
+    """Lazily expose Verifiers-backed classes without making reporting imports heavy."""
+    if name == "build_environment":
+        from .environment import build_environment
+
+        return build_environment
+    if name in {"MedFactHarness", "MedFactHarnessConfig"}:
+        from .harness import MedFactHarness, MedFactHarnessConfig
+
+        return {"MedFactHarness": MedFactHarness, "MedFactHarnessConfig": MedFactHarnessConfig}[name]
+    if name in {
+        "MedFactSubset",
+        "MedFactTask",
+        "MedFactTaskData",
+        "MedFactTaskset",
+        "MedFactTasksetConfig",
+    }:
+        from .taskset import MedFactSubset, MedFactTask, MedFactTaskData, MedFactTaskset, MedFactTasksetConfig
+
+        return {
+            "MedFactSubset": MedFactSubset,
+            "MedFactTask": MedFactTask,
+            "MedFactTaskData": MedFactTaskData,
+            "MedFactTaskset": MedFactTaskset,
+            "MedFactTasksetConfig": MedFactTasksetConfig,
+        }[name]
+    raise AttributeError(f"module 'medfact_bench' has no attribute {name!r}")
 
 
 __all__ = [

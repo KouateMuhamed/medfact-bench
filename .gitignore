@@ -16,3 +16,6 @@ htmlcov/
 outputs/
 runs/
 wandb/
+
+# Local ops scripts contain private infra such as mlserver Tailscale IPs and paths.
+scripts/
