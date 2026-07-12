@@ -9,8 +9,8 @@ from collections.abc import Iterator, Mapping
 from pathlib import Path
 from typing import Any
 
+from .constants import EXPECTED_DATASET_COUNTS
 from .core import INVALID_LABEL, LABELS, MedFactScoreParser, score_to_label
-from .taskset import EXPECTED_DATASET_COUNTS
 
 REPORT_SCHEMA_VERSION = 1
 CONFUSION_LABELS = (*LABELS, INVALID_LABEL)

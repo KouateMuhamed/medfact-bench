@@ -9,18 +9,8 @@ from typing import Literal
 import verifiers.v1 as vf
 from datasets import Dataset, load_dataset
 
+from .constants import DATASET_ID, DATASET_REVISION, EXPECTED_DATASET_COUNTS
 from .core import MedFactScoreParser, prediction_label
-
-DATASET_ID = "ncbi/MedFact-Bench"
-DATASET_REVISION = "249028caf7ad5a3e63331269a606f4b2696693ed"
-
-EXPECTED_DATASET_COUNTS = {
-    "scifact": 340,
-    "healthver": 903,
-    "medaesqa": 9_106,
-    "pubmedqa-fact": 500,
-    "bioasq-fact": 3_425,
-}
 
 LABELS = ("SUPPORT", "NEI", "CONTRADICT")
 REQUIRED_COLUMNS = (
