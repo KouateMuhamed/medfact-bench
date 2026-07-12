@@ -1,0 +1,15 @@
+MedFact-Bench Environment
+Copyright 2026 Kouate Muhamed
+
+This standalone environment implementation is maintained by Kouate Muhamed.
+Its initial behavior was validated through the MedFact-Bench contribution to
+MedARC-AI/medmarks, which is distributed under the MIT License.
+
+MedFact-Bench and Med-V1 were created by Jin et al. at the National Library of
+Medicine and collaborating institutions. The upstream Med-V1 software and
+database are United States Government works made available without copyright
+restriction. See https://github.com/ncbi-nlp/Med-V1 for the upstream notice.
+
+This repository does not redistribute MedFact-Bench, MedFact-Synth, model
+checkpoints, evaluation outputs, or generated model artifacts.
+

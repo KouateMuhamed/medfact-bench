@@ -1,0 +1,18 @@
+# Paper-faithful MedFact-Bench zero-shot evaluation defaults.
+model = "Qwen/Qwen2.5-3B-Instruct"
+num_rollouts = 1
+max_turns = 1
+push = false
+
+[sampling]
+temperature = 0
+max_tokens = 1024
+
+[taskset]
+id = "medfact-bench"
+subset = "all"
+split = "eval"
+
+[harness]
+id = "medfact-bench"
+

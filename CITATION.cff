@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this environment, cite both this software and the Med-V1 publication."
+title: "MedFact-Bench Environment"
+type: software
+version: 0.1.0
+date-released: 2026-07-12
+authors:
+  - family-names: "Kouate"
+    given-names: "Muhamed"
+    email: "muhamed.kouate@icloud.com"
+repository-code: "https://github.com/KouateMuhamed/medfact-bench"
+url: "https://github.com/KouateMuhamed/medfact-bench"
+license: MIT
+keywords:
+  - biomedical fact verification
+  - evidence attribution
+  - language model evaluation
+  - reinforcement learning environment
+references:
+  - type: article
+    title: "Med-V1: Small Language Models for Zero-shot and Scalable Biomedical Evidence Attribution"
+    authors:
+      - family-names: "Jin"
+        given-names: "Qiao"
+    year: 2026
+    url: "https://arxiv.org/abs/2603.05308"
+

@@ -1,0 +1,17 @@
+.DS_Store
+.env
+.venv/
+.pytest_cache/
+.ruff_cache/
+.uv-cache/
+__pycache__/
+*.egg-info/
+*.gguf
+*.parquet
+*.safetensors
+build/
+dist/
+htmlcov/
+outputs/
+runs/
+wandb/
