@@ -158,6 +158,22 @@ def test_environment_loader_uses_typed_taskset_and_one_turn() -> None:
     assert environment.taskset.config.subset == "scifact"
 
 
+def test_environment_loader_accepts_legacy_bridge_kwargs() -> None:
+    """`verifiers.load_environment(env_id, **env_args)` calls this with plain kwargs
+    (no `EnvConfig`), and reads/writes `env_id`/`env_args` on the result — both must work
+    for the environment to load through the Hub's generic install/load smoke test."""
+    environment = load_environment()
+
+    assert environment.env_id == "medfact-bench"
+    assert environment.env_args == {}
+    assert environment.config.max_turns == 1
+
+    environment = load_environment(max_turns=9)
+
+    assert environment.env_args == {"max_turns": 9}
+    assert environment.config.max_turns == 1
+
+
 @pytest.mark.integration
 @pytest.mark.skipif(
     os.environ.get("MEDFACT_BENCH_RUN_DATASET_INTEGRATION") != "1",

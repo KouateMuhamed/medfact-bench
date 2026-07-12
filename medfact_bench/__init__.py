@@ -39,8 +39,19 @@ def load_harness(config: MedFactHarnessConfig) -> MedFactHarness:
     return MedFactHarness(config=config)
 
 
-def load_environment(config: vf.EnvConfig) -> vf.Environment:
-    """Construct a one-turn MedFact-Bench environment from a strict Verifiers config."""
+def load_environment(config: vf.EnvConfig | None = None, **kwargs) -> vf.Environment:
+    """Construct a one-turn MedFact-Bench environment from a Verifiers config.
+
+    Accepts a pre-built ``EnvConfig`` positionally (the native v1 taskset/harness
+    loading path), or plain keyword arguments (the legacy ``load_environment(id,
+    **args)`` bridge used by generic environment tooling), applying kwargs as
+    overrides when both are given.
+    """
+    if config is None:
+        config = vf.EnvConfig(**kwargs)
+    elif kwargs:
+        config = config.model_copy(update=kwargs)
+
     taskset_config = config.taskset
     if not taskset_config.id:
         taskset_config = MedFactTasksetConfig(id=ENVIRONMENT_ID)
@@ -62,7 +73,13 @@ def load_environment(config: vf.EnvConfig) -> vf.Environment:
             "max_turns": 1,
         }
     )
-    return vf.Environment(config=normalized)
+    environment = vf.Environment(config=normalized)
+    # verifiers' legacy `env_utils.load_environment` bridge unconditionally reads and
+    # writes `env_id`/`env_args` on whatever this function returns; the v1 `Environment`
+    # class doesn't define either, so pre-set them to satisfy that bridge.
+    environment.env_id = ENVIRONMENT_ID
+    environment.env_args = kwargs
+    return environment
 
 
 __all__ = [
