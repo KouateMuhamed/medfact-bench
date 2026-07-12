@@ -891,6 +891,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "datasets" },
+    { name = "renderers" },
     { name = "verifiers" },
 ]
 
@@ -904,6 +905,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "datasets", specifier = ">=4.2.0,<5" },
+    { name = "renderers", specifier = "==0.1.8.dev58" },
     { name = "verifiers", specifier = ">=0.2.0,<0.3" },
 ]
 
