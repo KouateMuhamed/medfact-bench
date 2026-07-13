@@ -1,0 +1,70 @@
+{
+  "artifacts": {
+    "llama-3.2-3b-instruct": {
+      "model": "meta-llama/Llama-3.2-3B-Instruct",
+      "observed": {
+        "invalid_predictions": 1398,
+        "macro_accuracy": 0.512872436917353,
+        "macro_f1": 0.4120213492623677,
+        "micro_accuracy": 0.49530615104385595,
+        "paper_comparable": true,
+        "parse_rate": 0.9020596889449348,
+        "strict_format_rate": 0.8081126523749474,
+        "total_predictions": 14274
+      },
+      "paper_reference_macro_accuracy": 0.511,
+      "prime_evaluation_url": "https://app.primeintellect.ai/dashboard/evaluations/c52x83cg9z2h91p72orwnx8e",
+      "report_file": "llama-3.2-3b-instruct-medfact-report.json",
+      "report_sha256": "a241e579f76dccda2e1df0e676b6933cb3a307ca1e2990d83ce1202320fd8976",
+      "source_results_sha256": "e5e005b36144de117c0241aa125680697ff797d37ad8d2413a56cc2b535f3531"
+    },
+    "qwen2.5-3b-instruct": {
+      "model": "Qwen/Qwen2.5-3B-Instruct",
+      "observed": {
+        "invalid_predictions": 1402,
+        "macro_accuracy": 0.5200491598343188,
+        "macro_f1": 0.4528657263692711,
+        "micro_accuracy": 0.5384615384615384,
+        "paper_comparable": true,
+        "parse_rate": 0.9017794591565084,
+        "strict_format_rate": 0.0002101723413198823,
+        "total_predictions": 14274
+      },
+      "paper_reference_macro_accuracy": 0.515,
+      "prime_evaluation_url": "https://app.primeintellect.ai/dashboard/evaluations/uj1uugk1z7kl2f194s2x5dgc",
+      "report_file": "qwen2.5-3b-instruct-medfact-report.json",
+      "report_sha256": "8bfa68d86d38a4802675b7376d82644738276cabe0da0fff4a3f401f94348021",
+      "source_results_sha256": "16abe60443a6b1a0df93e612b0113b07524aac5ad002a68b66dabde6a71c7e78"
+    }
+  },
+  "benchmark": {
+    "component_counts": {
+      "bioasq-fact": 3425,
+      "healthver": 903,
+      "medaesqa": 9106,
+      "pubmedqa-fact": 500,
+      "scifact": 340
+    },
+    "huggingface_dataset": "ncbi/MedFact-Bench",
+    "huggingface_revision": "249028caf7ad5a3e63331269a606f4b2696693ed",
+    "name": "MedFact-Bench",
+    "total_examples": 14274
+  },
+  "created_at": "2026-07-13",
+  "inference": {
+    "backend": "vLLM",
+    "hardware_class": "single NVIDIA RTX 4070 12GB GPU",
+    "note": "Endpoint URLs, hostnames, local paths, credentials, and raw traces are intentionally omitted."
+  },
+  "name": "MedFact-Bench zero-shot small-model replication",
+  "protocol": {
+    "max_concurrent": 48,
+    "max_tokens": 1024,
+    "metric_for_paper_comparison": "macro_accuracy",
+    "prime_avg_reward_metric": "micro_accuracy",
+    "rollouts_per_example": 1,
+    "subset": "all",
+    "temperature": 0.0
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,120 @@
+{
+  "benchmark": "medfact_bench",
+  "confusion_matrix": {
+    "labels": [
+      "SUPPORT",
+      "NEI",
+      "CONTRADICT",
+      "INVALID"
+    ],
+    "rows": {
+      "CONTRADICT": {
+        "CONTRADICT": 630,
+        "INVALID": 89,
+        "NEI": 215,
+        "SUPPORT": 234
+      },
+      "INVALID": {
+        "CONTRADICT": 0,
+        "INVALID": 0,
+        "NEI": 0,
+        "SUPPORT": 0
+      },
+      "NEI": {
+        "CONTRADICT": 775,
+        "INVALID": 349,
+        "NEI": 843,
+        "SUPPORT": 1021
+      },
+      "SUPPORT": {
+        "CONTRADICT": 2323,
+        "INVALID": 960,
+        "NEI": 1238,
+        "SUPPORT": 5597
+      }
+    }
+  },
+  "coverage": {
+    "complete": true,
+    "count_mismatches": {},
+    "expected_dataset_counts": {
+      "bioasq-fact": 3425,
+      "healthver": 903,
+      "medaesqa": 9106,
+      "pubmedqa-fact": 500,
+      "scifact": 340
+    },
+    "expected_total": 14274,
+    "missing_datasets": [],
+    "observed_dataset_counts": {
+      "bioasq-fact": 3425,
+      "healthver": 903,
+      "medaesqa": 9106,
+      "pubmedqa-fact": 500,
+      "scifact": 340
+    },
+    "observed_total": 14274,
+    "status": "complete"
+  },
+  "invalid_predictions": 1398,
+  "macro_accuracy": 0.512872436917353,
+  "macro_f1": 0.4120213492623677,
+  "micro_accuracy": 0.49530615104385595,
+  "paper_comparable": true,
+  "paper_macro_accuracy": 0.512872436917353,
+  "parse_rate": 0.9020596889449348,
+  "per_class": {
+    "CONTRADICT": {
+      "f1": 0.25735294117647056,
+      "precision": 0.16899141630901288,
+      "predicted": 3728,
+      "recall": 0.5393835616438356,
+      "support": 1168
+    },
+    "NEI": {
+      "f1": 0.31907645722937167,
+      "precision": 0.3671602787456446,
+      "predicted": 2296,
+      "recall": 0.2821285140562249,
+      "support": 2988
+    },
+    "SUPPORT": {
+      "f1": 0.659634649381261,
+      "precision": 0.8168417980151781,
+      "predicted": 6852,
+      "recall": 0.5531725637477762,
+      "support": 10118
+    }
+  },
+  "per_dataset": {
+    "bioasq-fact": {
+      "accuracy": 0.5255474452554745,
+      "correct": 1800,
+      "total": 3425
+    },
+    "healthver": {
+      "accuracy": 0.4130675526024363,
+      "correct": 373,
+      "total": 903
+    },
+    "medaesqa": {
+      "accuracy": 0.48539424555238303,
+      "correct": 4420,
+      "total": 9106
+    },
+    "pubmedqa-fact": {
+      "accuracy": 0.558,
+      "correct": 279,
+      "total": 500
+    },
+    "scifact": {
+      "accuracy": 0.5823529411764706,
+      "correct": 198,
+      "total": 340
+    }
+  },
+  "schema_version": 1,
+  "strict_format_rate": 0.8081126523749474,
+  "total_predictions": 14274,
+  "valid_predictions": 12876
+}
