@@ -194,6 +194,9 @@ Figure 3 of the Med-V1 paper reports the following zero-shot accuracies.
 Macro is the unweighted mean of the five component accuracies. Evaluation manifests
 should preserve dataset, model, dependency, prompt, and sampling revisions.
 
+Local small-model replication results are available in
+[`docs/results/zero-shot-small-models.md`](docs/results/zero-shot-small-models.md).
+
 ## Citation
 
 If this environment supports research, cite both this software and the Med-V1 paper.
