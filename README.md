@@ -197,6 +197,19 @@ should preserve dataset, model, dependency, prompt, and sampling revisions.
 Local small-model replication results are available in
 [`docs/results/zero-shot-small-models.md`](docs/results/zero-shot-small-models.md).
 
+## Next Steps
+
+This first release establishes the zero-shot MedFact-Bench evaluation workflow.
+Future work will extend the project toward the Med-V1 training pipeline.
+
+- [x] Implement the zero-shot MedFact-Bench environment.
+- [x] Add benchmark-specific reporting and result manifests.
+- [x] Replicate the paper's small-model zero-shot baselines locally.
+- [ ] Add MedFact-Synth data preparation for supervised fine-tuning.
+- [ ] Evaluate SFT checkpoints with the same MedFact-Bench protocol.
+- [ ] Implement the paper's RLVR reward and GRPO training setup.
+- [ ] Compare zero-shot, SFT, and RLVR checkpoints with reproducible manifests.
+
 ## Citation
 
 If this environment supports research, cite both this software and the Med-V1 paper.
